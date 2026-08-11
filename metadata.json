@@ -1,0 +1,8 @@
+{
+  "name": "Yuva Sangam Event Registration",
+  "description": "Event registration and QR pass generator with organizer check-in for Yuva Sangam, Mathedi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

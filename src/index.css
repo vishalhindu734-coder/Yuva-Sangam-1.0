@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-updock {
+    font-family: 'Updock', cursive, sans-serif;
+  }
+  .font-rozha {
+    font-family: 'Rozha One', serif;
+  }
+}
