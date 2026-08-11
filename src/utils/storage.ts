@@ -17,6 +17,20 @@ export function getAgeNumber(dobString?: string): number | null {
     const month = parseInt(parts[1], 10) - 1;
     const year = parseInt(parts[2], 10);
     birthDate = new Date(year, month, day);
+    // Prevent JS rollover (e.g., Feb 31 -> March 3)
+    if (birthDate.getFullYear() !== year || birthDate.getMonth() !== month || birthDate.getDate() !== day) {
+      return null;
+    }
+  } else if (/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(cleanStr)) {
+    const parts = cleanStr.split(/[\/\-]/);
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    birthDate = new Date(year, month, day);
+    // Prevent JS rollover
+    if (birthDate.getFullYear() !== year || birthDate.getMonth() !== month || birthDate.getDate() !== day) {
+      return null;
+    }
   } else {
     birthDate = new Date(cleanStr);
   }
@@ -62,6 +76,13 @@ export function formatIndianDob(dobString?: string): string {
 
   const d = new Date(cleanStr);
   if (!isNaN(d.getTime())) {
+    // For ISO date strings (e.g. YYYY-MM-DD), use UTC date components to avoid timezone offset shifts
+    if (/^\d{4}-\d{2}-\d{2}/.test(cleanStr)) {
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const year = d.getUTCFullYear();
+      return `${day}-${month}-${year}`;
+    }
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
@@ -99,9 +120,14 @@ export function getRegistrations(): Registration[] {
 export function saveRegistration(newReg: Omit<Registration, 'ticketId' | 'registeredAt' | 'checkedIn'>): Registration {
   const registrations = getRegistrations();
   
-  // Generate random 5-digit numeric ticket ID
-  const randomId = Math.floor(10000 + Math.random() * 90000);
-  const ticketId = `YS2026-${randomId}`;
+  // Guarantee unique 5-digit numeric ticket ID
+  let ticketId = '';
+  let exists = true;
+  while (exists) {
+    const randomId = Math.floor(10000 + Math.random() * 90000);
+    ticketId = `YS2026-${randomId}`;
+    exists = registrations.some(r => r.ticketId.toLowerCase() === ticketId.toLowerCase());
+  }
 
   const registration: Registration = {
     ticketId,
@@ -121,6 +147,11 @@ export function saveRegistration(newReg: Omit<Registration, 'ticketId' | 'regist
   // Save ticketId to local saved passes list
   saveMyPassId(ticketId);
 
+  // Notify listeners that registration list updated
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('yuva_sangam_registration_added'));
+  }
+
   return registration;
 }
 
@@ -133,7 +164,9 @@ export function findRegistration(ticketIdOrPhone: string): Registration | undefi
 
   return registrations.find(r => {
     if (r.ticketId.toLowerCase() === query) return true;
-    if (queryDigits.length >= 6 && r.phone.replace(/\D/g, '').includes(queryDigits)) return true;
+    const cleanRPhone = r.phone.replace(/\D/g, '');
+    if (queryDigits.length >= 10 && (cleanRPhone === queryDigits || cleanRPhone.endsWith(queryDigits))) return true;
+    if (queryDigits.length >= 6 && queryDigits.length < 10 && (cleanRPhone === queryDigits || cleanRPhone.endsWith(queryDigits))) return true;
     return false;
   });
 }

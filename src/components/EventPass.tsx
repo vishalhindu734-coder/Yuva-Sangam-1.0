@@ -57,6 +57,9 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
     if (success) {
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
+    } else {
+      setShareNotice('Could not generate pass image automatically. Please take a screenshot or use Print.');
+      setTimeout(() => setShareNotice(null), 4000);
     }
   };
 
@@ -339,7 +342,7 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
               <AbstractPassEmblem size={44} className="shrink-0 drop-shadow-md" />
               
               <div className="min-w-0 flex-1">
-                <h3 className="font-updock font-bold text-2.5xl sm:text-3.5xl text-amber-300 leading-none drop-shadow-sm truncate">
+                <h3 className="font-updock font-bold text-[30px] sm:text-[40px] text-amber-300 leading-none drop-shadow-sm truncate">
                   Yuva Sangam 2026
                 </h3>
                 <span className="font-rozha text-amber-400 text-xs sm:text-sm leading-tight block mt-0.5">

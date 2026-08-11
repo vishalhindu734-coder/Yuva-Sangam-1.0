@@ -28,6 +28,22 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
   const [month, setMonth] = useState(initial.month);
   const [year, setYear] = useState(initial.year);
 
+  // Sync internal state when parent resets or changes value prop
+  useEffect(() => {
+    if (!value) {
+      setDay('');
+      setMonth('');
+      setYear('');
+    } else {
+      const parts = value.split('-');
+      if (parts.length === 3) {
+        if (parts[2] !== day) setDay(parts[2]);
+        if (parts[1] !== month) setMonth(parts[1]);
+        if (parts[0] !== year) setYear(parts[0]);
+      }
+    }
+  }, [value]);
+
   const monthRef = useRef<HTMLInputElement>(null);
   const yearRef = useRef<HTMLInputElement>(null);
 

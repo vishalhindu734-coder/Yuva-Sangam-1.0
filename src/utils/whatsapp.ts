@@ -2,17 +2,23 @@ import { Registration } from '../types';
 import { generatePassJpegFile, downloadPassAsJpeg } from './downloadPass';
 
 export function formatWhatsAppPhone(phone: string): string {
-  let clean = phone.replace(/\D/g, '');
-  if (clean.length === 10) {
-    return '91' + clean;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return digits;
   }
-  if (clean.length === 11 && clean.startsWith('0')) {
-    return '91' + clean.substring(1);
+  if (digits.length === 11 && digits.startsWith('0')) {
+    return '91' + digits.slice(1);
   }
-  if (clean.length === 12 && clean.startsWith('91')) {
-    return clean;
+  if (digits.length === 10) {
+    return '91' + digits;
   }
-  return clean.startsWith('91') ? clean : '91' + clean;
+  if (digits.length > 12 && digits.startsWith('91')) {
+    return digits.slice(0, 12);
+  }
+  if (digits.length >= 10) {
+    return '91' + digits.slice(-10);
+  }
+  return digits.startsWith('91') ? digits : '91' + digits;
 }
 
 export async function shareWhatsAppWithPassImage(

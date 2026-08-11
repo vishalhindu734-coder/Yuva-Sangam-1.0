@@ -24,7 +24,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
   const [selectedPass, setSelectedPass] = useState<Registration | null>(initialSelectedPass || null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
+  const loadPasses = () => {
     const all = getRegistrations();
     const myIds = getMyPassIds();
     
@@ -34,10 +34,28 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
     }
 
     setPasses(myPasses);
-    if (!selectedPass && myPasses.length > 0) {
+    return myPasses;
+  };
+
+  useEffect(() => {
+    const myPasses = loadPasses();
+    if (initialSelectedPass) {
+      setSelectedPass(initialSelectedPass);
+    } else if (myPasses.length > 0) {
       setSelectedPass(myPasses[0]);
     }
-  }, []);
+
+    const handleUpdate = () => {
+      loadPasses();
+    };
+
+    window.addEventListener('storage', handleUpdate);
+    window.addEventListener('yuva_sangam_registration_added', handleUpdate);
+    return () => {
+      window.removeEventListener('storage', handleUpdate);
+      window.removeEventListener('yuva_sangam_registration_added', handleUpdate);
+    };
+  }, [initialSelectedPass]);
 
   const filteredPasses = passes.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -7,24 +7,32 @@ export async function generatePassJpegDataUrl(elementId: string): Promise<string
     return null;
   }
 
-  try {
-    const dataUrl = await toJpeg(node, {
-      quality: 0.95,
-      pixelRatio: 2.5, // High resolution for sharp text and QR code
-      backgroundColor: '#ffffff',
-      fontEmbedCSS: '', // Suppress remote CSS rule parsing to avoid CORS SecurityError
-      cacheBust: false,
-      filter: (domNode) => {
-        if (domNode instanceof HTMLElement && domNode.classList.contains('download-exclude')) {
-          return false;
-        }
-        return true;
+  const options = {
+    quality: 0.95,
+    pixelRatio: 2, // High resolution for sharp text and QR code
+    backgroundColor: '#ffffff',
+    fontEmbedCSS: '', // Suppress remote CSS rule parsing to avoid CORS SecurityError
+    cacheBust: false,
+    filter: (domNode: Node) => {
+      if (domNode instanceof HTMLElement && domNode.classList.contains('download-exclude')) {
+        return false;
       }
-    });
-    return dataUrl;
-  } catch (error) {
-    console.error('Failed to generate pass JPEG data URL', error);
-    return null;
+      return true;
+    }
+  };
+
+  try {
+    return await toJpeg(node, options);
+  } catch (firstError) {
+    console.warn('First attempt at generating pass JPEG failed, retrying after delay...', firstError);
+    // Retry once after a brief 150ms delay to allow DOM/images to settle
+    try {
+      await new Promise(resolve => setTimeout(resolve, 150));
+      return await toJpeg(node, { ...options, pixelRatio: 1.5 });
+    } catch (retryError) {
+      console.error('Failed to generate pass JPEG data URL on retry', retryError);
+      return null;
+    }
   }
 }
 
