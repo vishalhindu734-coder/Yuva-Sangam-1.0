@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Registration } from '../types';
-import { getRegistrations, getMyPassIds, saveMyPassId, findRegistration, formatDisplayPhone, getAgeCategoryDetails, syncLocalToCloud, exportToCSV } from '../utils/storage';
+import { getRegistrations, getMyPassIds, saveMyPassId, findRegistration, formatDisplayPhone, getAgeCategoryDetails, syncLocalToCloud } from '../utils/storage';
 import { EventPass } from './EventPass';
 import { shareWhatsAppWithPassImage } from '../utils/whatsapp';
-import { Search, PlusCircle, Ticket, User, CheckCircle2, QrCode, Phone, SearchCheck, Cloud, RefreshCw, Users, Download, Check } from 'lucide-react';
+import { Search, PlusCircle, Ticket, User, CheckCircle2, QrCode, Phone, SearchCheck, Cloud, Check, X, Eye } from 'lucide-react';
 
 const WhatsAppIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -79,11 +79,9 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
   };
 
   useEffect(() => {
-    const activePasses = loadPasses();
+    loadPasses();
     if (initialSelectedPass) {
       setSelectedPass(initialSelectedPass);
-    } else if (activePasses.length > 0 && !selectedPass) {
-      setSelectedPass(activePasses[0]);
     }
 
     const handleUpdate = () => {
@@ -97,6 +95,16 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
       window.removeEventListener('yuva_sangam_registration_added', handleUpdate);
     };
   }, [initialSelectedPass]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedPass) {
+        setSelectedPass(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPass]);
 
   const filteredPasses = passes.filter(p => {
     const matchesSearch =
@@ -144,7 +152,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               )}
             </div>
             <p className="text-xs text-slate-500 font-medium">
-              Select a pass to view, download JPEG, or share on WhatsApp.
+              Click any pass card below to open full page view with QR code, share, and JPEG download.
             </p>
           </div>
         </div>
@@ -231,10 +239,9 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* Left Column: Pass Selector List */}
-          <div className="lg:col-span-5 space-y-3">
-            {/* Search Box */}
+        <div className="space-y-4">
+          {/* Search Box & Filters */}
+          <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-3">
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
               <input
@@ -242,15 +249,15 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
                 placeholder="Search name, phone, or pass ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-black font-medium"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-black font-medium"
               />
             </div>
 
             {/* Age Category Filter Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[10px] font-bold scrollbar-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[10px] font-bold scrollbar-none">
               <button
                 onClick={() => setSelectedCategory('ALL')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === 'ALL'
                     ? 'bg-slate-900 text-white border-slate-900 shadow-2xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
@@ -260,7 +267,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               </button>
               <button
                 onClick={() => setSelectedCategory('cat_15_20')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedCategory === 'cat_15_20'
                     ? 'bg-emerald-700 text-white border-emerald-700 shadow-2xs'
                     : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
@@ -271,7 +278,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               </button>
               <button
                 onClick={() => setSelectedCategory('cat_20_25')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedCategory === 'cat_20_25'
                     ? 'bg-sky-700 text-white border-sky-700 shadow-2xs'
                     : 'bg-sky-50 text-sky-900 border-sky-200 hover:bg-sky-100'
@@ -282,7 +289,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               </button>
               <button
                 onClick={() => setSelectedCategory('cat_25_30')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedCategory === 'cat_25_30'
                     ? 'bg-amber-700 text-white border-amber-700 shadow-2xs'
                     : 'bg-amber-50 text-amber-950 border-amber-200 hover:bg-amber-100'
@@ -293,7 +300,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               </button>
               <button
                 onClick={() => setSelectedCategory('cat_30_35')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedCategory === 'cat_30_35'
                     ? 'bg-purple-700 text-white border-purple-700 shadow-2xs'
                     : 'bg-purple-50 text-purple-900 border-purple-200 hover:bg-purple-100'
@@ -304,7 +311,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               </button>
               <button
                 onClick={() => setSelectedCategory('cat_35_40')}
-                className={`px-2.5 py-1 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg border whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                   selectedCategory === 'cat_35_40'
                     ? 'bg-rose-700 text-white border-rose-700 shadow-2xs'
                     : 'bg-rose-50 text-rose-900 border-rose-200 hover:bg-rose-100'
@@ -314,137 +321,153 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
                 <span>Banda Bahadur (35–40)</span>
               </button>
             </div>
+          </div>
 
-            {/* Passes list - Compact List View */}
-            <div className="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-2xs">
-              <div className="px-3.5 py-2 bg-slate-50/80 border-b border-slate-200/80 flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                <span>Attendee & Category</span>
-                <span>Status & Action</span>
+          {/* Full-width Responsive Grid of Pass Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {filteredPasses.length === 0 ? (
+              <div className="col-span-full p-8 bg-white rounded-2xl border border-slate-200 text-center text-xs text-slate-400 font-medium">
+                No passes match "{searchQuery}"
               </div>
-
-              <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
-                {filteredPasses.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-slate-400">
-                    No passes match "{searchQuery}"
-                  </div>
-                ) : (
-                  filteredPasses.map((pass) => {
-                    const isSelected = selectedPass?.ticketId === pass.ticketId;
-                    const catDetails = getAgeCategoryDetails(pass.dob);
-                    return (
-                      <div
-                        key={pass.ticketId}
-                        onClick={() => setSelectedPass(pass)}
-                        className={`px-3.5 py-2.5 transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                          isSelected
-                            ? 'bg-slate-900 text-white shadow-xs'
-                            : 'hover:bg-amber-50/60 text-slate-800'
-                        }`}
-                      >
-                        {/* Left: Name, Phone, Village & Category */}
-                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                          <div className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-black shrink-0 ${
-                            isSelected ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 text-slate-700'
-                          }`}>
-                            {pass.name ? pass.name.charAt(0).toUpperCase() : <User className="w-3.5 h-3.5" />}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-bold text-xs tracking-tight truncate">
-                                {pass.name}
-                              </span>
-                              <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded shrink-0 ${
-                                isSelected
-                                  ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                                  : 'bg-slate-100 text-slate-600 border border-slate-200'
-                              }`}>
-                                {pass.ticketId}
-                              </span>
-                              {catDetails && (
-                                <span className={`text-[8px] font-extrabold px-1.5 py-0.2 rounded border shrink-0 ${
-                                  isSelected ? 'bg-amber-400/20 text-amber-300 border-amber-400/40' : catDetails.fullBadgeClass
-                                }`}>
-                                  {catDetails.shortLabel}
-                                </span>
-                              )}
-                            </div>
-                            <div className={`text-[10px] font-mono flex items-center gap-2 mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                              <span>{formatDisplayPhone(pass.phone)}</span>
-                              {pass.village && (
-                                <>
-                                  <span>•</span>
-                                  <span className="truncate">{pass.village}</span>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right: Status & WhatsApp Action */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className={`text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 ${
-                            pass.checkedIn
-                              ? 'text-emerald-400'
-                              : isSelected ? 'text-amber-300' : 'text-slate-500'
-                          }`}>
-                            {pass.checkedIn ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                                <span className="hidden sm:inline">Checked-In</span>
-                              </>
-                            ) : (
-                              <>
-                                <QrCode className="w-3 h-3 text-amber-500" />
-                                <span className="hidden sm:inline">Ready</span>
-                              </>
-                            )}
+            ) : (
+              filteredPasses.map((pass) => {
+                const catDetails = getAgeCategoryDetails(pass.dob);
+                return (
+                  <div
+                    key={pass.ticketId}
+                    onClick={() => setSelectedPass(pass)}
+                    className="bg-white border border-slate-200/90 hover:border-orange-500/80 rounded-xl px-3 py-2.5 transition-all hover:shadow-xs hover:bg-slate-50/50 cursor-pointer flex items-center justify-between gap-2.5 group"
+                  >
+                    {/* Left: Attendee Info & Status */}
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      {/* Name, ID & Category */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-slate-900 text-xs sm:text-[13px] group-hover:text-orange-600 transition-colors truncate">
+                          {pass.name}
+                        </span>
+                        <span className="font-mono font-bold text-[9px] px-1 py-0.2 rounded bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                          #{pass.ticketId}
+                        </span>
+                        {catDetails && (
+                          <span className={`text-[8px] font-extrabold px-1 py-0.2 rounded border shrink-0 ${catDetails.fullBadgeClass}`}>
+                            {catDetails.shortLabel}
                           </span>
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleWhatsAppShareForPass(pass);
-                            }}
-                            className="p-1.5 sm:px-2 sm:py-1 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded text-[9px] font-bold flex items-center gap-1 transition-all shadow-2xs cursor-pointer"
-                            title={`Share pass on WhatsApp with ${pass.phone}`}
-                          >
-                            <WhatsAppIcon className="w-2.5 h-2.5 text-white" />
-                            <span className="hidden sm:inline">Share</span>
-                          </button>
-
-                          <a
-                            href={`tel:${pass.phone}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="p-1.5 sm:px-2 sm:py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[9px] font-bold flex items-center gap-1 transition-all shadow-2xs cursor-pointer"
-                            title={`Direct call to ${pass.phone}`}
-                          >
-                            <Phone className="w-2.5 h-2.5 text-white" />
-                            <span className="hidden sm:inline">Call</span>
-                          </a>
-                        </div>
+                        )}
                       </div>
-                    );
-                  })
-                )}
+
+                      {/* Phone, Village & Status */}
+                      <div className="text-[10px] text-slate-500 font-mono font-medium flex items-center gap-1.5 truncate">
+                        <span>{formatDisplayPhone(pass.phone)}</span>
+                        {pass.village && <span>• {pass.village}</span>}
+                        <span>•</span>
+                        <span className={`font-bold uppercase text-[8.5px] flex items-center gap-0.5 shrink-0 ${
+                          pass.checkedIn ? 'text-emerald-600' : 'text-amber-600'
+                        }`}>
+                          {pass.checkedIn ? (
+                            <>
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>In</span>
+                            </>
+                          ) : (
+                            <>
+                              <QrCode className="w-2.5 h-2.5 text-amber-600" />
+                              <span>Ready</span>
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWhatsAppShareForPass(pass);
+                        }}
+                        className="p-1.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-lg transition-all shadow-2xs cursor-pointer active:scale-95 flex items-center justify-center"
+                        title="Share pass on WhatsApp"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
+                      </button>
+
+                      <div className="px-2 py-1 bg-black text-white group-hover:bg-orange-600 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 shadow-2xs">
+                        <span>View</span>
+                        <Eye className="w-3 h-3" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Full Page Pass Overlay Modal */}
+      {selectedPass && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md overflow-y-auto flex flex-col items-center justify-start p-3 sm:p-6 animate-fade-in print:p-0 print:bg-white print:static print:inset-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedPass(null);
+            }
+          }}
+        >
+          {/* Top Full-Page Header Bar */}
+          <div className="w-full max-w-3xl bg-slate-900/95 text-white rounded-2xl border border-slate-800 px-4 py-3 mb-4 shadow-2xl flex items-center justify-between gap-3 sticky top-2 z-10 backdrop-blur-xl print:hidden">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/40 text-orange-400 flex items-center justify-center font-bold text-xs shrink-0">
+                🎟️
               </div>
+              <div className="min-w-0">
+                <h3 className="font-extrabold text-xs sm:text-sm tracking-tight text-white truncate">
+                  {selectedPass.name}'s Event Pass
+                </h3>
+                <p className="text-[10px] text-slate-400 font-mono">
+                  Pass ID: #{selectedPass.ticketId} • {formatDisplayPhone(selectedPass.phone)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Share Button */}
+              <button
+                onClick={() => handleWhatsAppShareForPass(selectedPass)}
+                className="px-3.5 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95"
+                title="Share Pass on WhatsApp"
+              >
+                <WhatsAppIcon className="w-4 h-4 text-white" />
+                <span className="hidden sm:inline">Share Pass</span>
+              </button>
+
+              {/* Close Cross (X) Button */}
+              <button
+                onClick={() => setSelectedPass(null)}
+                className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer flex items-center justify-center border border-slate-700/80 active:scale-95"
+                title="Close Pass View (Esc)"
+                aria-label="Close pass view"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
-          {/* Right Column: Selected Pass Preview */}
-          <div className="lg:col-span-7">
-            {selectedPass ? (
-              <EventPass registration={selectedPass} onRegisterAnother={onRegisterNew} />
-            ) : (
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-8 text-center text-slate-400 text-xs font-medium">
-                Select a pass from the list to view or download.
-              </div>
-            )}
+          {/* Centered Event Pass Component */}
+          <div className="w-full max-w-2xl my-auto pb-8 print:p-0">
+            <EventPass
+              registration={selectedPass}
+              onRegisterAnother={() => {
+                setSelectedPass(null);
+                onRegisterNew();
+              }}
+            />
           </div>
         </div>
       )}
     </div>
   );
 };
+
 
 
