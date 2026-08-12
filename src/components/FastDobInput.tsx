@@ -154,20 +154,20 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
         <div className="flex items-center justify-between bg-gradient-to-r from-amber-500 to-orange-600 text-white px-3 py-1.5 rounded-xl shadow-xs border border-amber-300 animate-fade-in mt-1.5">
           <span className="text-xs font-bold flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-            <span>Calculated Age:</span>
+            <span>Age:</span>
             <strong className="font-mono text-sm font-black text-amber-100">{ageString}</strong>
           </span>
-          {ageNum < 18 ? (
-            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md">
-              Under 18 Youth
+          {ageNum < 15 ? (
+            <span className="text-[10px] font-bold text-rose-950 bg-rose-200 px-2 py-0.5 rounded-md">
+              Under 15 Yrs (Invited: 15–40)
             </span>
-          ) : ageNum <= 35 ? (
+          ) : ageNum <= 40 ? (
             <span className="text-[10px] font-bold text-emerald-950 bg-emerald-200 px-2 py-0.5 rounded-md">
-              Eligible Youth (18-35)
+              Eligible Youth (15–40 Yrs)
             </span>
           ) : (
             <span className="text-[10px] font-bold text-rose-950 bg-rose-200 px-2 py-0.5 rounded-md">
-              Above 35 Yrs
+              Above 40 Yrs (Invited: 15–40)
             </span>
           )}
         </div>

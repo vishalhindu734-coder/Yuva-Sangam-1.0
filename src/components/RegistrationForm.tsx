@@ -134,7 +134,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
       setIsSubmitting(false);
 
       const calculatedAge = getAgeNumber(dob);
-      const isEligible = calculatedAge !== null && calculatedAge >= 15 && calculatedAge <= 35;
+      const isEligible = calculatedAge !== null && calculatedAge >= 15 && calculatedAge <= 40;
 
       if (isEligible) {
         confetti({
@@ -170,7 +170,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
         </h3>
 
         <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-md mx-auto mb-4 leading-relaxed">
-          Thank you <strong className="text-slate-900 font-bold">{regretState.name}</strong>. Your attendee details have been captured and recorded in our system. However, official event entry passes are strictly generated for <strong className="text-orange-700 font-bold">male youth aged between 15 and 35 years</strong>.
+          Thank you <strong className="text-slate-900 font-bold">{regretState.name}</strong>. Your attendee details have been captured and recorded in our system. However, official event entry passes are generated for <strong className="text-orange-700 font-bold">male youth aged between 15 and 40 years</strong>.
         </p>
 
         <div className="bg-white border border-amber-200/80 rounded-xl p-3 max-w-sm mx-auto mb-5 text-left text-xs space-y-1.5 shadow-2xs">
@@ -193,7 +193,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
           <div className="flex items-center justify-between text-slate-700 font-medium border-t border-slate-100 pt-1.5">
             <span>Pass Generation Criteria:</span>
             <span className="font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-              15 to 35 Years
+              15 to 40 Years (5 Categories)
             </span>
           </div>
         </div>
@@ -235,8 +235,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
             <span className="text-amber-800 font-rozha text-sm sm:text-base font-normal">| युवा संगम</span>
           </h2>
           <p className="text-[11px] text-slate-600 font-medium mt-0.5">
-            Fill attendee details to generate your verified Mathedi Yuva Sangam 2026 pass. <span className="font-bold text-orange-700">(Invited: Male youth aged 15 to 35 years)</span>
+            Fill attendee details to generate your verified Mathedi Yuva Sangam 2026 pass. <span className="font-bold text-orange-700">(Invited: Male youth aged 15 to 40 years)</span>
           </p>
+          
+
         </div>
       </div>
 

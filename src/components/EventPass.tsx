@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Registration, QRData } from '../types';
 import { YUVA_SANGAM_EVENT } from '../constants/eventDetails';
-import { calculateAgeYears, getAgeNumber, formatIndianDob, formatDisplayPhone } from '../utils/storage';
+import { EVENT_QUOTES, getQuoteForTicket, Quote } from '../constants/quotes';
+import { calculateAgeYears, getAgeNumber, formatIndianDob, formatDisplayPhone, getAgeCategoryDetails } from '../utils/storage';
 import { downloadPassAsJpeg, generatePassJpegFile } from '../utils/downloadPass';
 import { shareWhatsAppWithPassImage } from '../utils/whatsapp';
 import { AbstractPassBackgroundSVG, AbstractPassEmblem } from './SwamiVivekanandaGraphic';
 import { CalendarButtons } from './CalendarButtons';
-import { Download, Printer, Share2, Check, CheckCircle2, MapPin, Calendar, User, ShieldCheck, Sparkles, Flame, Clock } from 'lucide-react';
+import { Download, Printer, Share2, Check, CheckCircle2, MapPin, Calendar, User, ShieldCheck, Sparkles, Flame, Clock, Phone, Ticket } from 'lucide-react';
 
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -24,12 +25,19 @@ interface EventPassProps {
 
 export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAnother }) => {
   const [passTheme, setPassTheme] = useState<PassTheme>('VIVEKANANDA');
+  const [currentQuote, setCurrentQuote] = useState<Quote>(() => getQuoteForTicket(registration.ticketId));
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
   const [isWhatsAppSharing, setIsWhatsAppSharing] = useState(false);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+
+  const cycleQuote = () => {
+    const currentIndex = EVENT_QUOTES.findIndex(q => q.text === currentQuote.text);
+    const nextIndex = (currentIndex + 1) % EVENT_QUOTES.length;
+    setCurrentQuote(EVENT_QUOTES[nextIndex]);
+  };
 
   const qrPayload: QRData = {
     ticketId: registration.ticketId,
@@ -168,10 +176,11 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-orange-600" />
-              Official Entry Pass Verified
-            </span>
+            <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md text-emerald-800" title="Official Entry Pass Verified">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <Ticket className="w-3.5 h-3.5 text-amber-600" />
+            </div>
           </div>
 
           {/* Theme Selector Pills */}
@@ -230,6 +239,17 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
 
           {/* Right Group: Primary Export CTAs */}
           <div className="flex items-center gap-2">
+            {/* Direct Call */}
+            <a
+              id="btn-call-attendee"
+              href={`tel:${registration.phone}`}
+              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              title={`Direct call to ${registration.phone}`}
+            >
+              <Phone className="w-3.5 h-3.5 text-white" />
+              <span>Call</span>
+            </a>
+
             {/* WhatsApp */}
             <button
               id="btn-whatsapp-share"
@@ -328,10 +348,27 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
 
           <div className="flex flex-col space-y-2 relative z-10">
             {/* Top Badge Row */}
-            <div className="flex items-center justify-between w-full text-[9px]">
-              <span className="uppercase tracking-widest font-black text-amber-300 bg-amber-950/80 border border-amber-400/40 px-2 py-0.5 rounded-full shadow-2xs">
-                Official Entry Pass
-              </span>
+            <div className="flex items-center justify-between w-full text-[9px] gap-1.5 flex-wrap">
+              <div 
+                className="bg-amber-950/80 border border-amber-400/40 px-2 py-0.5 rounded-full shadow-2xs flex items-center gap-1.5 text-amber-300"
+                title="Official Entry Pass Verified"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                <Ticket className="w-3.5 h-3.5 text-amber-300" />
+              </div>
+
+              {(() => {
+                const cat = getAgeCategoryDetails(registration.dob);
+                if (!cat) return null;
+                return (
+                  <div className={`px-2.5 py-0.5 rounded-full border text-[9px] font-extrabold flex items-center gap-1.5 shadow-2xs ${cat.darkBadgeClass}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${cat.dotClass} shrink-0 animate-pulse`} />
+                    <span>{cat.shortLabel}</span>
+                  </div>
+                );
+              })()}
+
               <span className="bg-amber-400/20 border border-amber-300/40 backdrop-blur-xs px-2 py-0.5 rounded-lg font-mono font-black uppercase tracking-widest text-amber-200 shadow-2xs">
                 {registration.ticketId}
               </span>
@@ -379,11 +416,16 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
           )}
         </div>
 
-        {/* Swami Vivekananda Inspiring Quote Banner */}
-        <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white px-3 py-1.5 text-center border-y border-amber-400/40 shadow-inner relative z-10">
-          <p className="text-[10px] font-serif italic font-semibold tracking-wide flex items-center justify-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-200 shrink-0" />
-            <span>&ldquo;Arise, awake, and stop not till the goal is reached.&rdquo;</span>
+        {/* Inspiring Thought / Quote Banner */}
+        <div 
+          onClick={cycleQuote}
+          title="Click to change quote"
+          className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white px-3 py-1.5 text-center border-y border-amber-400/40 shadow-inner relative z-10 cursor-pointer select-none group transition-all hover:brightness-105"
+        >
+          <p className="text-[10px] sm:text-[11px] font-serif italic font-semibold tracking-wide flex items-center justify-center gap-1.5 flex-wrap">
+            <Sparkles className="w-3 h-3 text-amber-200 shrink-0 group-hover:rotate-45 transition-transform" />
+            <span>&ldquo;{currentQuote.text}&rdquo;</span>
+            <span className="font-sans not-italic font-bold text-amber-200 text-[9px] opacity-90">— {currentQuote.author}</span>
           </p>
         </div>
 
@@ -423,7 +465,7 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
               <div className="grid grid-cols-2 gap-1.5 text-[10px]">
                 <div className="bg-white/95 backdrop-blur-xs p-2 rounded-lg border border-amber-200/90">
                   <p className="text-[8px] font-black text-amber-900/70 uppercase tracking-widest block mb-0.5">
-                    DOB (DD-MM-YYYY)
+                    Date of Birth
                   </p>
                   <p className="font-bold text-slate-900 flex items-center gap-1 flex-wrap leading-tight">
                     <span>{formatIndianDob(registration.dob)}</span>
@@ -439,9 +481,14 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
                   <p className="text-[8px] font-black text-amber-900/70 uppercase tracking-widest block mb-0.5">
                     Contact
                   </p>
-                  <p className="font-bold text-slate-900 font-mono text-[10px] leading-tight whitespace-nowrap">
-                    {formatDisplayPhone(registration.phone)}
-                  </p>
+                  <a
+                    href={`tel:${registration.phone}`}
+                    className="font-bold text-slate-900 hover:text-blue-700 font-mono text-[10px] leading-tight whitespace-nowrap flex items-center gap-1 transition-colors"
+                    title="Click to call attendee"
+                  >
+                    <Phone className="w-2.5 h-2.5 text-blue-600 shrink-0" />
+                    <span>{formatDisplayPhone(registration.phone)}</span>
+                  </a>
                 </div>
               </div>
 
@@ -508,9 +555,9 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
               </span>
 
               {/* Security Seal Badge */}
-              <div className="mt-1 text-[7px] font-extrabold font-mono text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full uppercase tracking-tight flex items-center gap-1">
-                <Sparkles className="w-2 h-2 text-orange-600" />
-                <span>Verified Entry</span>
+              <div className="mt-1 text-[7px] font-extrabold font-mono text-amber-900 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-1" title="Verified Entry">
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <CheckCircle2 className="w-2.5 h-2.5 text-orange-600" />
               </div>
             </div>
           </div>
@@ -518,7 +565,11 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
           {/* Bottom Security Bar */}
           <div className="pt-1.5 border-t border-amber-200/80 flex items-center justify-between text-[8px] font-black uppercase tracking-widest text-amber-900/70 relative z-10">
             <span>ISSUED: {new Date(registration.registeredAt).toLocaleDateString()}</span>
-            <span className="text-orange-700">VERIFIED PASS • AMBALA 2026</span>
+            <span className="text-orange-700 flex items-center gap-1" title="Verified Pass Ambala 2026">
+              <ShieldCheck className="w-3 h-3 text-orange-600" />
+              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span>AMBALA 2026</span>
+            </span>
           </div>
         </div>
 
