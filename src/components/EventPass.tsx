@@ -299,23 +299,15 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
               id="btn-download-pass-jpeg"
               onClick={handleDownload}
               disabled={isDownloading}
-              className="px-4 py-1.5 bg-black text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-1.5 shadow-sm shadow-slate-200 cursor-pointer disabled:opacity-50"
+              className="p-1.5 px-3 bg-black text-white rounded-lg transition-all flex items-center justify-center shadow-sm shadow-slate-200 cursor-pointer disabled:opacity-50"
+              title="Save JPEG"
             >
               {isDownloading ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Saving...</span>
-                </>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin m-0.5" />
               ) : downloadSuccess ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Saved!</span>
-                </>
+                <Check className="w-5 h-5 text-emerald-400" />
               ) : (
-                <>
-                  <Download className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Save JPEG</span>
-                </>
+                <Download className="w-5 h-5 text-amber-300" />
               )}
             </button>
           </div>

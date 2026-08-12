@@ -14,9 +14,8 @@ export default function App() {
   const [savedPassesCount, setSavedPassesCount] = useState(0);
 
   const updateCounts = () => {
-    const all = getRegistrations();
     const myIds = getMyPassIds();
-    setSavedPassesCount(myIds.length > 0 ? myIds.length : all.length);
+    setSavedPassesCount(myIds.length);
   };
 
   useEffect(() => {
