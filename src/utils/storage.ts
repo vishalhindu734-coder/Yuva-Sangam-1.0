@@ -400,6 +400,20 @@ export function findRegistration(ticketIdOrPhone: string): Registration | undefi
   });
 }
 
+export function getRegistrationsByPhone(phoneInput: string): Registration[] {
+  const registrations = getRegistrations();
+  const queryDigits = phoneInput.replace(/\D/g, '');
+  if (!queryDigits || queryDigits.length < 10) return [];
+
+  const last10 = queryDigits.slice(-10);
+
+  return registrations.filter(r => {
+    const cleanRPhone = r.phone.replace(/\D/g, '');
+    if (!cleanRPhone) return false;
+    return cleanRPhone === queryDigits || cleanRPhone.endsWith(last10);
+  });
+}
+
 export function performCheckIn(ticketId: string): { success: boolean; registration?: Registration; message: string; alreadyCheckedIn?: boolean } {
   const registrations = getRegistrations();
   const index = registrations.findIndex(r => r.ticketId.toLowerCase() === ticketId.trim().toLowerCase());
