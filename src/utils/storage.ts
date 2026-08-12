@@ -10,19 +10,38 @@ const FIRESTORE_COLLECTION = 'registrations';
 // Initialize real-time cloud Firestore synchronization
 let firestoreUnsubscribe: (() => void) | null = null;
 
+export async function syncLocalToCloud(): Promise<boolean> {
+  try {
+    const local = getRegistrations();
+    if (!local || local.length === 0) return true;
+
+    const promises = local.map(reg => {
+      const docRef = doc(db, FIRESTORE_COLLECTION, reg.ticketId);
+      return setDoc(docRef, reg, { merge: true });
+    });
+
+    await Promise.all(promises);
+    return true;
+  } catch (err) {
+    console.warn('Failed syncing local registrations to cloud:', err);
+    return false;
+  }
+}
+
 export function initFirestoreSync() {
   if (typeof window === 'undefined' || firestoreUnsubscribe) return;
 
   try {
     const colRef = collection(db, FIRESTORE_COLLECTION);
     
-    firestoreUnsubscribe = onSnapshot(colRef, (snapshot) => {
-      if (snapshot.empty) return;
+    // Sync any local offline data to cloud first
+    syncLocalToCloud().catch(err => console.warn('Initial cloud sync warning:', err));
 
+    firestoreUnsubscribe = onSnapshot(colRef, (snapshot) => {
       const remoteRegistrations: Registration[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data() as Registration;
-        if (data && data.ticketId) {
+        if (data && data.ticketId && !DEMO_TICKET_IDS.has(data.ticketId)) {
           remoteRegistrations.push(data);
         }
       });
@@ -32,7 +51,6 @@ export function initFirestoreSync() {
         const local = getRegistrations();
         const map = new Map<string, Registration>();
 
-        // Remote takes priority for checkedIn status
         local.forEach(r => map.set(r.ticketId, r));
         remoteRegistrations.forEach(r => map.set(r.ticketId, r));
 
@@ -284,18 +302,24 @@ export function formatDisplayPhone(phone?: string): string {
   return cleaned || phone;
 }
 
+const DEMO_TICKET_IDS = new Set(['YS2026-90412', 'YS2026-88104', 'YS2026-77319']);
+
 export function getRegistrations(): Registration[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      // Seed with initial demo data so organizers can test scanning right away
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DEMO_REGISTRATIONS));
-      return INITIAL_DEMO_REGISTRATIONS;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+      return [];
     }
-    return JSON.parse(raw);
+    const list: Registration[] = JSON.parse(raw);
+    const cleaned = list.filter(r => r && r.ticketId && !DEMO_TICKET_IDS.has(r.ticketId));
+    if (cleaned.length !== list.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
   } catch (err) {
     console.error('Failed to parse registrations from storage', err);
-    return INITIAL_DEMO_REGISTRATIONS;
+    return [];
   }
 }
 
@@ -397,10 +421,7 @@ export function performCheckIn(ticketId: string): { success: boolean; registrati
   // Sync check-in to Firestore
   try {
     const docRef = doc(db, FIRESTORE_COLLECTION, updatedReg.ticketId);
-    updateDoc(docRef, {
-      checkedIn: true,
-      checkedInAt: updatedReg.checkedInAt,
-    }).catch(err => console.warn('Firestore check-in update warning:', err));
+    setDoc(docRef, updatedReg, { merge: true }).catch(err => console.warn('Firestore check-in update warning:', err));
   } catch (err) {
     console.warn('Firestore check-in error:', err);
   }
@@ -433,10 +454,7 @@ export function toggleCheckIn(ticketId: string): Registration[] {
   if (targetReg) {
     try {
       const docRef = doc(db, FIRESTORE_COLLECTION, ticketId);
-      updateDoc(docRef, {
-        checkedIn: targetReg.checkedIn,
-        checkedInAt: targetReg.checkedInAt || null,
-      }).catch(err => console.warn('Firestore toggle update warning:', err));
+      setDoc(docRef, targetReg, { merge: true }).catch(err => console.warn('Firestore toggle update warning:', err));
     } catch (err) {
       console.warn('Firestore toggle error:', err);
     }
@@ -461,7 +479,12 @@ export function saveMyPassId(ticketId: string) {
 export function getMyPassIds(): string[] {
   try {
     const raw = localStorage.getItem(MY_PASSES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const ids: string[] = raw ? JSON.parse(raw) : [];
+    const cleaned = ids.filter(id => !DEMO_TICKET_IDS.has(id));
+    if (cleaned.length !== ids.length) {
+      localStorage.setItem(MY_PASSES_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
   } catch (e) {
     return [];
   }

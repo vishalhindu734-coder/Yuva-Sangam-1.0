@@ -37,39 +37,4 @@ export const AMBALA_VILLAGES_PRESETS: VillagePreset[] = [
   { village: "Boh", subDivision: "Ambala Sadar" },
 ];
 
-export const INITIAL_DEMO_REGISTRATIONS = [
-  {
-    ticketId: "YS2026-90412",
-    name: "Aarav Sharma",
-    dob: "2001-05-14",
-    village: "Mathedi",
-    subDivision: "Ambala Sadar",
-    phone: "+91 98765 43210",
-    otherInfo: "Youth Club Volunteer / Student",
-    registeredAt: "2026-08-01T10:30:00.000Z",
-    checkedIn: false,
-  },
-  {
-    ticketId: "YS2026-88104",
-    name: "Priya Verma",
-    dob: "2002-11-20",
-    village: "Sonda",
-    subDivision: "Ambala Sadar",
-    phone: "+91 98123 45678",
-    otherInfo: "Cultural Team Lead",
-    registeredAt: "2026-08-02T14:15:00.000Z",
-    checkedIn: true,
-    checkedInAt: "2026-08-23T08:05:12.000Z",
-  },
-  {
-    ticketId: "YS2026-77319",
-    name: "Vikram Saini",
-    dob: "1999-08-03",
-    village: "Barara",
-    subDivision: "Barara",
-    phone: "+91 94160 12345",
-    otherInfo: "Sports Delegate",
-    registeredAt: "2026-08-05T09:00:00.000Z",
-    checkedIn: false,
-  }
-];
+export const INITIAL_DEMO_REGISTRATIONS: any[] = [];
