@@ -32,21 +32,25 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-slate-200 selection:text-slate-900 flex flex-col antialiased">
       {/* Navbar */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        savedPassesCount={savedPassesCount}
-      />
+      <div className="print-hide">
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          savedPassesCount={savedPassesCount}
+        />
+      </div>
 
       {/* Main Content Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-8 flex flex-col justify-center">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-8 flex flex-col justify-center print:p-0 print:m-0">
         {activeTab === 'register' && (
-          <div className="space-y-3 sm:space-y-8 my-auto">
-            <EventHeader />
+          <div className="space-y-3 sm:space-y-8 my-auto print:space-y-0">
+            <div className="print-hide">
+              <EventHeader />
+            </div>
 
             {currentRegistration ? (
-              <div className="space-y-4 sm:space-y-6">
-                <div className="bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-wrap items-center justify-between gap-3">
+              <div className="space-y-4 sm:space-y-6 print:space-y-0">
+                <div className="bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-wrap items-center justify-between gap-3 print-hide">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
                       ✓
@@ -141,7 +145,7 @@ export default function App() {
       </main>
 
       {/* Footer - hidden on small mobile viewports during registration for zero scroll */}
-      <footer className="hidden sm:block bg-white border-t border-slate-100 mt-6 sm:mt-16 py-6 sm:py-10 text-xs text-slate-400 font-medium">
+      <footer className="hidden sm:block bg-white border-t border-slate-100 mt-6 sm:mt-16 py-6 sm:py-10 text-xs text-slate-400 font-medium print-hide">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-bold uppercase tracking-wider text-[11px] text-slate-900">
             <span>Yuva Sangam 2026</span>

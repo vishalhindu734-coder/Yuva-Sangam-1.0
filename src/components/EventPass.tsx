@@ -171,7 +171,7 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
   return (
     <div className="space-y-4">
       {/* Action Toolbar */}
-      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 download-exclude">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3 download-exclude print-hide">
         {/* Top Row: Verification Badge & Quick Theme Selector */}
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
       </div>
 
       {shareNotice && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between animate-fade-in download-exclude">
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-between animate-fade-in download-exclude print-hide">
           <span className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-orange-600" />
             {shareNotice}

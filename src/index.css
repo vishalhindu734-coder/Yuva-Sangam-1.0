@@ -7,4 +7,27 @@
   .font-rozha {
     font-family: 'Rozha One', serif;
   }
+
+  /* Print-specific utility classes */
+  @media print {
+    .print-hide {
+      display: none !important;
+    }
+    
+    .print-only {
+      display: block !important;
+    }
+    
+    /* Ensure the body remains clean for printing */
+    body {
+      background: white !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    
+    /* Force page breaks if needed */
+    .page-break {
+      page-break-before: always;
+    }
+  }
 }
