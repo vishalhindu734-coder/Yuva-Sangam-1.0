@@ -83,7 +83,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
     }, 50);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -115,14 +115,14 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
       let formattedPhone = cleanPhone;
       if (digitsOnly.length === 10 && !cleanPhone.startsWith('+')) {
         formattedPhone = `+91 ${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`;
       }
 
-      // Save attendee registration details
-      const newReg = saveRegistration({
+      // Save attendee registration details directly to cloud and local storage
+      const newReg = await saveRegistration({
         name: cleanName,
         dob: dob,
         village: finalVillage,
@@ -150,7 +150,11 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
           age: calculatedAge,
         });
       }
-    }, 400);
+    } catch (err) {
+      console.error('Registration save error:', err);
+      setIsSubmitting(false);
+      setError('An error occurred while saving registration. Please try again.');
+    }
   };
 
   // Render regret message after capturing details if user is outside 15-35 age range

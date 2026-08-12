@@ -7,6 +7,19 @@ const STORAGE_KEY = 'yuva_sangam_registrations_v1';
 const MY_PASSES_KEY = 'yuva_sangam_my_ticket_ids_v1';
 const FIRESTORE_COLLECTION = 'registrations';
 
+const DEMO_TICKET_IDS = new Set(['YS2026-90412', 'YS2026-88104', 'YS2026-77319']);
+
+// Helper to remove 'undefined' properties from object, which causes Firestore setDoc/updateDoc to throw error
+export function cleanForFirestore<T extends Record<string, any>>(data: T): Record<string, any> {
+  const result: Record<string, any> = {};
+  Object.keys(data).forEach(key => {
+    if (data[key] !== undefined) {
+      result[key] = data[key];
+    }
+  });
+  return result;
+}
+
 // Initialize real-time cloud Firestore synchronization
 let firestoreUnsubscribe: (() => void) | null = null;
 
@@ -17,13 +30,14 @@ export async function syncLocalToCloud(): Promise<boolean> {
 
     const promises = local.map(reg => {
       const docRef = doc(db, FIRESTORE_COLLECTION, reg.ticketId);
-      return setDoc(docRef, reg, { merge: true });
+      const cleanData = cleanForFirestore(reg);
+      return setDoc(docRef, cleanData, { merge: true });
     });
 
     await Promise.all(promises);
     return true;
   } catch (err) {
-    console.warn('Failed syncing local registrations to cloud:', err);
+    console.error('Failed syncing local registrations to cloud:', err);
     return false;
   }
 }
@@ -302,8 +316,6 @@ export function formatDisplayPhone(phone?: string): string {
   return cleaned || phone;
 }
 
-const DEMO_TICKET_IDS = new Set(['YS2026-90412', 'YS2026-88104', 'YS2026-77319']);
-
 export function getRegistrations(): Registration[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -323,7 +335,7 @@ export function getRegistrations(): Registration[] {
   }
 }
 
-export function saveRegistration(newReg: Omit<Registration, 'ticketId' | 'registeredAt' | 'checkedIn'>): Registration {
+export async function saveRegistration(newReg: Omit<Registration, 'ticketId' | 'registeredAt' | 'checkedIn'>): Promise<Registration> {
   const registrations = getRegistrations();
   
   // Guarantee unique 5-digit numeric ticket ID
@@ -353,12 +365,15 @@ export function saveRegistration(newReg: Omit<Registration, 'ticketId' | 'regist
   // Save ticketId to local saved passes list
   saveMyPassId(ticketId);
 
-  // Sync to Cloud Firestore
+  // Sync to Cloud Firestore immediately
   try {
     const docRef = doc(db, FIRESTORE_COLLECTION, registration.ticketId);
-    setDoc(docRef, registration).catch(err => console.warn('Firestore save warning:', err));
+    const cleanData = cleanForFirestore(registration);
+    await setDoc(docRef, cleanData);
+    console.log('Saved registration directly to Firestore cloud:', registration.ticketId);
   } catch (err) {
-    console.warn('Firestore save error:', err);
+    console.error('Direct Firestore save error:', err);
+    syncLocalToCloud().catch(e => console.error('Fallback sync error:', e));
   }
 
   // Notify listeners that registration list updated
@@ -421,9 +436,12 @@ export function performCheckIn(ticketId: string): { success: boolean; registrati
   // Sync check-in to Firestore
   try {
     const docRef = doc(db, FIRESTORE_COLLECTION, updatedReg.ticketId);
-    setDoc(docRef, updatedReg, { merge: true }).catch(err => console.warn('Firestore check-in update warning:', err));
+    const cleanData = cleanForFirestore(updatedReg);
+    setDoc(docRef, cleanData, { merge: true })
+      .then(() => console.log('Saved check-in to Firestore:', updatedReg.ticketId))
+      .catch(err => console.error('Firestore check-in update warning:', err));
   } catch (err) {
-    console.warn('Firestore check-in error:', err);
+    console.error('Firestore check-in error:', err);
   }
 
   return {
@@ -454,9 +472,12 @@ export function toggleCheckIn(ticketId: string): Registration[] {
   if (targetReg) {
     try {
       const docRef = doc(db, FIRESTORE_COLLECTION, ticketId);
-      setDoc(docRef, targetReg, { merge: true }).catch(err => console.warn('Firestore toggle update warning:', err));
+      const cleanData = cleanForFirestore(targetReg);
+      setDoc(docRef, cleanData, { merge: true })
+        .then(() => console.log('Saved toggle to Firestore:', ticketId))
+        .catch(err => console.error('Firestore toggle update warning:', err));
     } catch (err) {
-      console.warn('Firestore toggle error:', err);
+      console.error('Firestore toggle error:', err);
     }
   }
 

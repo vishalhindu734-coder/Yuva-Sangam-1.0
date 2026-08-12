@@ -24,20 +24,18 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
   const [selectedPass, setSelectedPass] = useState<Registration | null>(initialSelectedPass || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
-  const [viewMode, setViewMode] = useState<'my' | 'all'>('my');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncNotice, setSyncNotice] = useState('');
   const [lookupInput, setLookupInput] = useState('');
   const [lookupError, setLookupError] = useState('');
   const [lookupSuccess, setLookupSuccess] = useState('');
 
-  const loadPasses = (mode = viewMode) => {
+  const loadPasses = () => {
     const all = getRegistrations();
     const myIds = getMyPassIds();
     
-    // In 'my' mode, filter to passes registered on this device or looked up.
-    // In 'all' (Volunteer/Organizer mode), show ALL registered attendees.
-    const displayPasses = mode === 'all' ? all : all.filter(r => myIds.includes(r.ticketId));
+    // Filter to passes registered on this device or looked up via phone/ID
+    const displayPasses = all.filter(r => myIds.includes(r.ticketId));
 
     setPasses(displayPasses);
     return displayPasses;
@@ -81,7 +79,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
   };
 
   useEffect(() => {
-    const activePasses = loadPasses(viewMode);
+    const activePasses = loadPasses();
     if (initialSelectedPass) {
       setSelectedPass(initialSelectedPass);
     } else if (activePasses.length > 0 && !selectedPass) {
@@ -89,7 +87,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
     }
 
     const handleUpdate = () => {
-      loadPasses(viewMode);
+      loadPasses();
     };
 
     window.addEventListener('storage', handleUpdate);
@@ -98,7 +96,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
       window.removeEventListener('storage', handleUpdate);
       window.removeEventListener('yuva_sangam_registration_added', handleUpdate);
     };
-  }, [initialSelectedPass, viewMode]);
+  }, [initialSelectedPass]);
 
   const filteredPasses = passes.filter(p => {
     const matchesSearch =
@@ -133,7 +131,7 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                {viewMode === 'all' ? 'All Event Registrations' : 'Event Passes'}
+                Event Passes
               </h2>
               <span className="px-2 py-0.5 bg-orange-100 text-orange-800 text-[11px] font-black rounded-full">
                 {passes.length}
@@ -146,39 +144,12 @@ export const AttendeePassesList: React.FC<AttendeePassesListProps> = ({
               )}
             </div>
             <p className="text-xs text-slate-500 font-medium">
-              {viewMode === 'all' 
-                ? 'Volunteer Mode: Real-time Cloud synchronized registrations across all devices.' 
-                : 'Select a pass to view, download JPEG, or share on WhatsApp.'}
+              Select a pass to view, download JPEG, or share on WhatsApp.
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Mode Switcher */}
-          <div className="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold border border-slate-200">
-            <button
-              onClick={() => { setViewMode('my'); loadPasses('my'); }}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                viewMode === 'my'
-                  ? 'bg-white text-slate-900 shadow-2xs font-extrabold'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              My Saved Passes
-            </button>
-            <button
-              onClick={() => { setViewMode('all'); loadPasses('all'); }}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === 'all'
-                  ? 'bg-orange-600 text-white shadow-2xs font-extrabold'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Volunteer View (All)</span>
-            </button>
-          </div>
-
           {/* Cloud Sync Button */}
           <button
             onClick={handleManualSync}
