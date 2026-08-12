@@ -35,7 +35,7 @@ export async function shareWhatsAppWithPassImage(
     `• *Mobile:* ${registration.phone}\n` +
     (registration.village ? `• *Village:* ${registration.village}\n` : '') +
     (registration.subDivision ? `• *Sub Division:* ${registration.subDivision}\n` : '') +
-    `\n📅 *Date & Time:* Sunday, 23 August 2026 at 8:00 AM IST\n` +
+    `\n📅 *Date & Time:* Sunday, 23 August 2026 at 8:00 AM - 11:30 AM\n` +
     `📍 *Venue:* Maharaja Agrasen Public School, Sonda (Ambala)\n\n` +
     `Please present this pass at the entrance gate for instant QR verification.`;
 

@@ -5,7 +5,7 @@ export const YUVA_SANGAM_EVENT: EventInfo = {
   organizer: "Yuva Sangam Ambala",
   date: "2026-08-23",
   formattedDate: "Sunday, 23 August 2026",
-  time: "08:00 AM - 11:30 AM IST",
+  time: "08:00 AM - 11:30 AM",
   venue: "Maharaja Agrasen Public School",
   address: "Sonda (Ambala)",
   landmark: "Near Main Chowk, Sonda",

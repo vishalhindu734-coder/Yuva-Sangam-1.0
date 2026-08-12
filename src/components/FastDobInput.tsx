@@ -57,11 +57,15 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
       const formattedD = d < 10 ? `0${d}` : `${d}`;
       const formattedM = m < 10 ? `0${m}` : `${m}`;
       const iso = `${y}-${formattedM}-${formattedD}`;
-      onChange(iso);
+      if (iso !== value) {
+        onChange(iso);
+      }
     } else {
-      onChange('');
+      if (value !== '') {
+        onChange('');
+      }
     }
-  }, [day, month, year, onChange]);
+  }, [day, month, year, value, onChange]);
 
   // Handle Day Input
   const handleDayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +101,7 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
       <div className="grid grid-cols-3 gap-2 items-center">
         {/* Day */}
         <div className="min-w-0">
-          <label className="block text-[9px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
+          <label className="block text-[8px] sm:text-[8.5px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
             Day (DD)
           </label>
           <input
@@ -108,13 +112,13 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
             placeholder="DD"
             value={day}
             onChange={handleDayChange}
-            className="w-full text-center py-2 sm:py-2.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-sm sm:text-base font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
+            className="w-full text-center py-1.5 sm:py-1.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-xs sm:text-sm font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
           />
         </div>
 
         {/* Month */}
         <div className="min-w-0">
-          <label className="block text-[9px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
+          <label className="block text-[8px] sm:text-[8.5px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
             Month (MM)
           </label>
           <input
@@ -126,13 +130,13 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
             placeholder="MM"
             value={month}
             onChange={handleMonthChange}
-            className="w-full text-center py-2 sm:py-2.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-sm sm:text-base font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
+            className="w-full text-center py-1.5 sm:py-1.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-xs sm:text-sm font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
           />
         </div>
 
         {/* Year */}
         <div className="min-w-0">
-          <label className="block text-[9px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
+          <label className="block text-[8px] sm:text-[8.5px] font-bold text-amber-900/60 uppercase tracking-widest mb-0.5 text-center">
             Year (YYYY)
           </label>
           <input
@@ -144,29 +148,29 @@ export const FastDobInput: React.FC<FastDobInputProps> = ({ value, onChange }) =
             placeholder="YYYY"
             value={year}
             onChange={handleYearChange}
-            className="w-full text-center py-2 sm:py-2.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-sm sm:text-base font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
+            className="w-full text-center py-1.5 sm:py-1.5 bg-amber-50/50 border border-amber-300 rounded-xl text-slate-900 text-xs sm:text-sm font-black tracking-widest focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all placeholder:text-slate-300 shadow-2xs"
           />
         </div>
       </div>
 
       {/* Calculated Age Live Badge - Rendered below inputs so layout never distorts */}
       {ageString && ageNum !== null && (
-        <div className="flex items-center justify-between bg-gradient-to-r from-amber-500 to-orange-600 text-white px-3 py-1.5 rounded-xl shadow-xs border border-amber-300 animate-fade-in mt-1.5">
-          <span className="text-xs font-bold flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+        <div className="flex items-center justify-between bg-gradient-to-r from-amber-500 to-orange-600 text-white px-2.5 py-1 rounded-xl shadow-xs border border-amber-300 animate-fade-in mt-1">
+          <span className="text-[11px] font-bold flex items-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-amber-200" />
             <span>Age:</span>
-            <strong className="font-mono text-sm font-black text-amber-100">{ageString}</strong>
+            <strong className="font-mono text-xs font-black text-amber-100">{ageString}</strong>
           </span>
           {ageNum < 15 ? (
-            <span className="text-[10px] font-bold text-rose-950 bg-rose-200 px-2 py-0.5 rounded-md">
+            <span className="text-[9px] font-bold text-rose-950 bg-rose-200 px-1.5 py-0.5 rounded-md">
               Under 15 Yrs (Invited: 15–40)
             </span>
           ) : ageNum <= 40 ? (
-            <span className="text-[10px] font-bold text-emerald-950 bg-emerald-200 px-2 py-0.5 rounded-md">
+            <span className="text-[9px] font-bold text-emerald-950 bg-emerald-200 px-1.5 py-0.5 rounded-md">
               Eligible Youth (15–40 Yrs)
             </span>
           ) : (
-            <span className="text-[10px] font-bold text-rose-950 bg-rose-200 px-2 py-0.5 rounded-md">
+            <span className="text-[9px] font-bold text-rose-950 bg-rose-200 px-1.5 py-0.5 rounded-md">
               Above 40 Yrs (Invited: 15–40)
             </span>
           )}

@@ -7,8 +7,7 @@ import { calculateAgeYears, getAgeNumber, formatIndianDob, formatDisplayPhone, g
 import { downloadPassAsJpeg, generatePassJpegFile } from '../utils/downloadPass';
 import { shareWhatsAppWithPassImage } from '../utils/whatsapp';
 import { AbstractPassBackgroundSVG, AbstractPassEmblem } from './SwamiVivekanandaGraphic';
-import { CalendarButtons } from './CalendarButtons';
-import { Download, Printer, Share2, Check, CheckCircle2, MapPin, Calendar, User, ShieldCheck, Sparkles, Flame, Clock, Phone, Ticket } from 'lucide-react';
+import { Download, Share2, Check, CheckCircle2, MapPin, Calendar, User, ShieldCheck, Sparkles, Flame, Clock, Phone, Ticket } from 'lucide-react';
 
 const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -66,13 +65,9 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
     } else {
-      setShareNotice('Could not generate pass image automatically. Please take a screenshot or use Print.');
+      setShareNotice('Could not generate pass image automatically. Please take a screenshot.');
       setTimeout(() => setShareNotice(null), 4000);
     }
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   const handleWhatsAppShare = async () => {
@@ -222,23 +217,9 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
         </div>
 
         {/* Action Buttons Row */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-          {/* Left Group: Calendar & Print */}
-          <div className="flex items-center gap-2">
-            <CalendarButtons variant="compact" />
-
-            <button
-              onClick={handlePrint}
-              className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Print Pass"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Print</span>
-            </button>
-          </div>
-
+        <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-slate-100">
           {/* Right Group: Primary Export CTAs */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Direct Call */}
             <a
               id="btn-call-attendee"
@@ -517,7 +498,7 @@ export const EventPass: React.FC<EventPassProps> = ({ registration, onRegisterAn
               <div className="bg-amber-900/5 backdrop-blur-xs p-2 rounded-xl border border-amber-300/80 space-y-1 text-[10px] mt-auto">
                 <div className="flex items-center gap-1 font-bold text-slate-900">
                   <Clock className="w-3 h-3 text-orange-600 shrink-0" />
-                  <span>8:00 AM – 11:30 AM IST</span>
+                  <span>8:00 AM – 11:30 AM</span>
                 </div>
                 <a
                   href="https://www.google.com/maps/search/?api=1&query=Maharaja%20Agrasen%20Public%20School%2C%20Sonda%2C%20Ambala"

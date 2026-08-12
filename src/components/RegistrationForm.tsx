@@ -61,22 +61,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
     );
   }, [cleanQuery]);
 
-  // Real-time auto-fill if single remaining match exists
-  useEffect(() => {
-    if (cleanQuery.length >= 2 && matchingVillages.length === 1) {
-      const match = matchingVillages[0];
-      if (villageInput !== match.gram || mandalInput !== match.mandal) {
-        setVillageInput(match.gram);
-        setMandalInput(match.mandal);
-        setIsDropdownOpen(false);
-      }
-    }
-  }, [cleanQuery, matchingVillages, villageInput, mandalInput]);
-
   const handleVillageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setVillageInput(val);
     setIsDropdownOpen(val.trim().length >= 2);
+
+    if (!val.trim()) {
+      setMandalInput('');
+      return;
+    }
 
     // If exact match found in database while typing, sync mandal
     const exactMatch = MANDAL_VILLAGE_DATA.find(
@@ -94,6 +87,20 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
     setTimeout(() => {
       phoneInputRef.current?.focus();
     }, 50);
+  };
+
+  const resetForm = () => {
+    setName('');
+    setDob('');
+    setVillageInput('');
+    setMandalInput('');
+    setIsDropdownOpen(false);
+    setPhone('');
+    setOtherInfo('');
+    setError('');
+    setIsSubmitting(false);
+    setExistingPassesWarning(null);
+    setRegretState(null);
   };
 
   const executeSaveRegistration = async (data: {
@@ -132,13 +139,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
         });
 
         // Clear form inputs so fresh registration starts completely clean
-        setName('');
-        setDob('');
-        setVillageInput('');
-        setMandalInput('');
-        setPhone('');
-        setOtherInfo('');
-        setError('');
+        resetForm();
 
         onSuccess(newReg);
       } else {
@@ -262,15 +263,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
         </div>
 
         <button
-          onClick={() => {
-            setRegretState(null);
-            setName('');
-            setDob('');
-            setVillageInput('');
-            setMandalInput('');
-            setPhone('');
-            setOtherInfo('');
-          }}
+          onClick={resetForm}
           className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-md cursor-pointer"
         >
           <RotateCcw className="w-4 h-4 text-amber-400" />
@@ -305,15 +298,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ onSuccess })
         {(name || dob || villageInput || phone || otherInfo) && (
           <button
             type="button"
-            onClick={() => {
-              setName('');
-              setDob('');
-              setVillageInput('');
-              setMandalInput('');
-              setPhone('');
-              setOtherInfo('');
-              setError('');
-            }}
+            onClick={resetForm}
             className="px-2.5 py-1 bg-amber-100/80 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 transition-all shrink-0 cursor-pointer"
             title="Clear all form fields to start fresh"
           >

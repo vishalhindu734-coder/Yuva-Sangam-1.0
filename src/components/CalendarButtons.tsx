@@ -41,7 +41,7 @@ export const CalendarButtons: React.FC<CalendarButtonsProps> = ({ variant = 'com
               युवा संगम : सोंडा (अंबाला)
             </span>
             <span className="text-[10px] text-amber-900/80 font-bold">
-              23 Aug 2026 • 08:00 AM - 11:30 AM IST (With Reminders)
+              23 Aug 2026 • 08:00 AM - 11:30 AM (With Reminders)
             </span>
           </div>
         </div>

@@ -5,7 +5,7 @@ export function getGoogleCalendarUrl(): string {
   const details = encodeURIComponent(
     `युवा संगम : सोंडा (अंबाला)\n\n` +
     `📅 Date: 23 August 2026\n` +
-    `⏰ Time: 08:00 AM to 11:30 AM IST\n` +
+    `⏰ Time: 08:00 AM to 11:30 AM\n` +
     `📍 Venue: ${YUVA_SANGAM_EVENT.venue}, ${YUVA_SANGAM_EVENT.address}\n\n` +
     `🔔 EVENT REMINDERS:\n` +
     `• 1 Day Before (22 Aug 2026 at 08:00 AM)\n` +
@@ -27,7 +27,7 @@ export function getGoogleCalendarUrl(): string {
 export function getOutlookCalendarUrl(): string {
   const title = encodeURIComponent("युवा संगम : सोंडा (अंबाला)");
   const details = encodeURIComponent(
-    `युवा संगम : सोंडा (अंबाला)\nDate: 23 August 2026\nTime: 08:00 AM to 11:30 AM IST\nVenue: ${YUVA_SANGAM_EVENT.venue}, ${YUVA_SANGAM_EVENT.address}.\nReminders: 1 day before, 1 hour before, 30 minutes before.`
+    `युवा संगम : सोंडा (अंबाला)\nDate: 23 August 2026\nTime: 08:00 AM to 11:30 AM\nVenue: ${YUVA_SANGAM_EVENT.venue}, ${YUVA_SANGAM_EVENT.address}.\nReminders: 1 day before, 1 hour before, 30 minutes before.`
   );
   const location = encodeURIComponent(
     `${YUVA_SANGAM_EVENT.venue}, ${YUVA_SANGAM_EVENT.address}, ${YUVA_SANGAM_EVENT.city}, ${YUVA_SANGAM_EVENT.state}`
@@ -47,7 +47,7 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
 SUMMARY:युवा संगम : सोंडा (अंबाला)
-DESCRIPTION:युवा संगम : सोंडा (अंबाला)\\nDate: 23 August 2026\\nTime: 08:00 AM to 11:30 AM IST\\nVenue: ${YUVA_SANGAM_EVENT.venue}\\, ${YUVA_SANGAM_EVENT.address}\\n\\nReminders:\\n- 1 day before\\n- 1 hour before\\n- 30 minutes before
+DESCRIPTION:युवा संगम : सोंडा (अंबाला)\\nDate: 23 August 2026\\nTime: 08:00 AM to 11:30 AM\\nVenue: ${YUVA_SANGAM_EVENT.venue}\\, ${YUVA_SANGAM_EVENT.address}\\n\\nReminders:\\n- 1 day before\\n- 1 hour before\\n- 30 minutes before
 LOCATION:${YUVA_SANGAM_EVENT.venue}\\, ${YUVA_SANGAM_EVENT.address}\\, ${YUVA_SANGAM_EVENT.city}\\, ${YUVA_SANGAM_EVENT.state}
 DTSTART:20260823T023000Z
 DTEND:20260823T060000Z

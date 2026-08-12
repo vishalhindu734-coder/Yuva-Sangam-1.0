@@ -6,12 +6,15 @@
     <title>Yuva Sangam 2026</title>
     <script type="text/javascript">
       // Single Page Apps redirect for GitHub Pages
-      var pathSegmentsToKeep = 1;
-      var l = window.location;
-      var repoPath = l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/');
-      window.location.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + repoPath + '/'
-      );
+      (function() {
+        var l = window.location;
+        var pathSegments = l.pathname.split('/').filter(Boolean);
+        // Preserve repo name if hosted on github.io subfolder (e.g., username.github.io/repo-name/)
+        var repoName = (l.hostname.endsWith('github.io') && pathSegments.length > 0) ? '/' + pathSegments[0] : '';
+        window.location.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + repoName + '/' + (l.search || '') + (l.hash || '')
+        );
+      })();
     </script>
   </head>
   <body>

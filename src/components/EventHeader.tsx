@@ -125,7 +125,7 @@ export const EventHeader: React.FC = () => {
           {/* Time on Left */}
           <div className="flex items-center gap-1.5 text-xs text-amber-200 font-bold">
             <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>8:00 AM – 11:30 AM IST</span>
+            <span>8:00 AM – 11:30 AM</span>
           </div>
 
           {/* Dynamic Compact Countdown Pill aligned to Right */}

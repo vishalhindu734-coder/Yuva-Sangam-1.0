@@ -19,10 +19,16 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('register');
   const [currentRegistration, setCurrentRegistration] = useState<Registration | null>(null);
   const [savedPassesCount, setSavedPassesCount] = useState(0);
+  const [formKey, setFormKey] = useState(0);
 
   const updateCounts = () => {
     const myIds = getMyPassIds();
     setSavedPassesCount(myIds.length);
+  };
+
+  const handleClosePassView = () => {
+    setCurrentRegistration(null);
+    setFormKey(prev => prev + 1);
   };
 
   useEffect(() => {
@@ -32,7 +38,7 @@ export default function App() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && currentRegistration) {
-        setCurrentRegistration(null);
+        handleClosePassView();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -66,7 +72,7 @@ export default function App() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-start">
               <div className="lg:col-span-7">
-                <RegistrationForm onSuccess={handleRegistrationSuccess} />
+                <RegistrationForm key={formKey} onSuccess={handleRegistrationSuccess} />
               </div>
 
               <div className="hidden lg:block lg:col-span-5 bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 space-y-6 shadow-sm">
@@ -122,7 +128,7 @@ export default function App() {
         {activeTab === 'passes' && (
           <AttendeePassesList
             onRegisterNew={() => {
-              setCurrentRegistration(null);
+              handleClosePassView();
               setActiveTab('register');
             }}
             initialSelectedPass={currentRegistration}
@@ -136,7 +142,7 @@ export default function App() {
           className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md overflow-y-auto flex flex-col items-center justify-start p-3 sm:p-6 animate-fade-in print:p-0 print:bg-white print:static print:inset-auto"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
-              setCurrentRegistration(null);
+              handleClosePassView();
             }
           }}
         >
@@ -177,7 +183,7 @@ export default function App() {
 
               {/* Cancel Button to Cancel View & Start Fresh Registration */}
               <button
-                onClick={() => setCurrentRegistration(null)}
+                onClick={handleClosePassView}
                 className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700/80 shadow-md cursor-pointer active:scale-95 shrink-0"
                 title="Cancel pass view and start fresh registration"
                 aria-label="Cancel pass view and start fresh registration"
@@ -192,7 +198,7 @@ export default function App() {
           <div className="w-full max-w-2xl my-auto pb-8 print:p-0">
             <EventPass
               registration={currentRegistration}
-              onRegisterAnother={() => setCurrentRegistration(null)}
+              onRegisterAnother={handleClosePassView}
             />
           </div>
         </div>
